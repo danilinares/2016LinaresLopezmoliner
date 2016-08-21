@@ -71,7 +71,7 @@ choicebiascurves <- fitcomp$curves %>%
   mutate(x = x - 2*par) %>%
   filter(x > -2.1, x < 2.1)
   
-### prepare data for correlation plots
+### correlation 
 fitcompthrelong <- fitcomp$thresholds %>%
   select(-threinf, -thresup, -vertical) %>% spread(orLarge, thre)
 fitcompthrelonginf <- fitcomp$thresholds %>%
@@ -89,12 +89,14 @@ topbot <- fitcompthrelongwithci %>% select(subject, Top, Bottom) %>%
 riglef <- fitcompthrelongwithci %>% select(subject, Right, Left) %>%
   rename(x = Right, y = Left)
 topbotriglef <- rbind(topbot, riglef)
+cor.test(topbotriglef$x, topbotriglef$y)
 
 toprig <- fitcompthrelongwithci %>% select(subject, Top, Right) %>%
   rename(x = Top, y = Right)
-rigbot <- fitcompthrelongwithci %>% select(subject, Right, Bottom) %>%
-  rename(x = Right, y = Bottom)
-toprigrigbot <- rbind(toprig, rigbot)
+lefbot <- fitcompthrelongwithci %>% select(subject, Left, Bottom) %>%
+  rename(x = Left, y = Bottom)
+topriglefbot <- rbind(toprig, lefbot)
+cor.test(topriglefbot$x, topriglefbot$y)
 
 ### figure 2
 funpsychocomp <- function(flagVertical, flagOrder) {
@@ -138,12 +140,12 @@ pcor2 <- ggplot(data = fitcompthrelongwithci )+
                    color ='Top-Right', shape = subject), size  = sizeLine1) +
   geom_segment(aes(x = Top, xend = Top, y = Rightinf, yend = Rightsup,
                    color ='Top-Right', shape = subject), size  = sizeLine1) +
-  geom_point(aes(x=Right,y=Bottom, color='Right-Bottom', shape = subject),
+  geom_point(aes(x=Left,y=Bottom, color='Left-Bottom', shape = subject),
              size = sizePoint2) +
-  geom_segment(aes(x = Rightinf, xend = Rightsup, y = Bottom, yend = Bottom,
-                   color ='Right-Bottom', shape = subject), size  = sizeLine1) +
-  geom_segment(aes(x = Right, xend = Right, y = Bottominf, yend = Bottomsup,
-                   color ='Right-Bottom', shape = subject), size  = sizeLine1) +
+  geom_segment(aes(x = Leftinf, xend = Leftsup, y = Bottom, yend = Bottom,
+                   color ='Left-Bottom', shape = subject), size  = sizeLine1) +
+  geom_segment(aes(x = Left, xend = Left, y = Bottominf, yend = Bottomsup,
+                   color ='Left-Bottom', shape = subject), size  = sizeLine1) +
   guides(shape = FALSE) +
   scale_color_manual(values = c('#a65628','#f781bf')) +
   scale_shape_discrete(solid=F) +
@@ -205,7 +207,7 @@ equcumnormmax <- fitequcumnorm$curves %>%
 fitequcumnorm$parcomparisons %>%
   filter(parn =='p1', subject == subject2, vertical == vertical2)
 
-### prepare data for correlation plots
+### correlation 
 pse <- fitequcumnorm$par %>% filter(parn=='p1') %>% merge(equcumnormmax)
 fiteqpselong <- pse %>%
   select(-parinf, -parsup, -vertical, -maxi) %>% spread(orLarge, par)
@@ -218,6 +220,21 @@ fiteqpselongsup <- pse %>%
 
 fiteqpselongwithci <- merge(fiteqpselong,
                                merge(fiteqpselonginf, fiteqpselongsup))
+
+topboteq <- fiteqpselong %>% select(subject, Top, Bottom) %>%
+  rename(x = Top, y = Bottom)
+riglefeq <- fiteqpselong %>% select(subject, Right, Left) %>%
+  rename(x = Right, y = Left)
+topbotriglefeq <- rbind(topboteq, riglefeq)
+cor.test(topbotriglefeq$x, topbotriglefeq$y)
+
+toprigeq <- fiteqpselong %>% select(subject, Top, Right) %>%
+  rename(x = Top, y = Right)
+lefboteq <- fiteqpselong %>% select(subject, Left, Bottom) %>%
+  rename(x = Left, y = Bottom)
+topriglefboteq <- rbind(toprigeq, lefboteq)
+
+cor.test(topriglefboteq$x, topriglefboteq$y)
 
 ### figure 3
 textProb2 <- 'Prob. responding aligned'
@@ -265,16 +282,16 @@ pcoreq2 <- ggplot(data = fiteqpselongwithci )+
                    color ='Top-Right', shape = subject), size  = sizeLine1) +
   geom_segment(aes(x = Top, xend = Top, y = Rightinf, yend = Rightsup,
                    color ='Top-Right', shape = subject), size  = sizeLine1) +
-  geom_point(aes(x=Right,y=Bottom, color='Right-Bottom', shape = subject),
+  geom_point(aes(x=Left,y=Bottom, color='Left-Bottom', shape = subject),
              size = sizePoint2) +
-  geom_segment(aes(x = Rightinf, xend = Rightsup, y = Bottom, yend = Bottom,
-                   color ='Right-Bottom', shape = subject), size  = sizeLine1) +
-  geom_segment(aes(x = Right, xend = Right, y = Bottominf, yend = Bottomsup,
-                   color ='Right-Bottom', shape = subject), size  = sizeLine1) +
+  geom_segment(aes(x = Leftinf, xend = Leftsup, y = Bottom, yend = Bottom,
+                   color ='Left-Bottom', shape = subject), size  = sizeLine1) +
+  geom_segment(aes(x = Left, xend = Left, y = Bottominf, yend = Bottomsup,
+                   color ='Left-Bottom', shape = subject), size  = sizeLine1) +
   guides(shape = FALSE) +
   scale_shape_discrete(solid=F) +
   scale_color_manual(values = c('#a65628','#f781bf')) +
-  labs(x = 'PND (deg)', y = 'PND (deg)') +
+  labs(x = 'PMR (deg)', y = 'PMR (deg)') +
   theme(legend.title = element_blank()) +
   scale_x_continuous(breaks =seq(-1,1,.5),
                      labels = c('-1','-0.5','0','0.5','1')) +
@@ -299,7 +316,7 @@ pcoreq1 <- ggplot(data = fiteqpselongwithci )+
   guides(shape = FALSE) +
   scale_shape_discrete(solid=F) +
   scale_color_manual(values = c('#ff7f00','#999999')) +
-  labs(x = 'PND (deg)', y = 'PND (deg)') +
+  labs(x = 'PMR (deg)', y = 'PMR (deg)') +
   theme(legend.title = element_blank()) +
   scale_x_continuous(breaks =seq(-1,1,.5),
                      labels = c('-1','-0.5','0','0.5','1')) +
@@ -316,7 +333,7 @@ save_plot('figures/fig3.pdf', peq,
           base_width = onehalfColumnWidth,
           base_height = 1.5 * onehalfColumnWidth)
 
-#### PND PMR comparisons 
+#### PND PMR comparisons #######################################################
 compeq <- fitequcumnorm$parbootstrap %>% filter(parn == 'p1') %>%
   select(-parn) %>% merge(fitcomp$thresholdsbootstrap %>% select(-prob)) %>%
   mutate(dif = par - thre) %>% group_by(subject, orLarge) %>%
@@ -326,6 +343,7 @@ compeq <- fitequcumnorm$parbootstrap %>% filter(parn == 'p1') %>%
 all <- merge(pse, fitcomp$thresholds)
 confint(lm(all$thre~all$par))
 cor.test(all$par,all$thre)
+
 ### fig 4 
 pcorcompeq <- ggplot(data = all )+ #facet_wrap(~orLarge)+
   geom_abline(slope = 1, lty =2, size  = sizeLine1)+
@@ -351,5 +369,12 @@ save_plot('figures/fig4.pdf', pcorcompeq,
           base_width = oneColumnWidth,
           base_height = oneColumnWidth)
 
+### correlation orthogonal axes ################################################
+### fig s1
+psup <-plot_grid(pcor2, pcoreq2, labels = c('A','B'), ncol=1, hjust = 0)
+
+save_plot('figures/figs1.pdf', psup,
+          base_width = oneColumnWidth,
+          base_height = 1.5*oneColumnWidth)
 
 
